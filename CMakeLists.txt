@@ -117,3 +117,12 @@ add_dependencies(${TEMPLATE_NAME} ${SHADER_TARGET})
 # set (ASSET_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../assets/")
 # file (COPY ${ASSET_DIR}/viking_room.obj DESTINATION ${TEMPLATE_DIR}/models)
 # file (COPY ${ASSET_DIR}/viking_room.png DESTINATION ${TEMPLATE_DIR}/textures)
+
+
+add_subdirectory(mc_core)
+
+set (CPU_MARCHING_CUBES_APP_NAME "CPUMarchingCubes")
+add_executable (${CPU_MARCHING_CUBES_APP_NAME} cpuMarchingCubes.cpp)
+set_target_properties (${CPU_MARCHING_CUBES_APP_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEMPLATE_DIR})
+target_link_libraries (${CPU_MARCHING_CUBES_APP_NAME} mc_core)
+set_target_properties (${CPU_MARCHING_CUBES_APP_NAME} PROPERTIES CXX_STANDARD 20)
