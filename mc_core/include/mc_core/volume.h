@@ -35,6 +35,10 @@ namespace mc_core
 		float sample(glm::uvec3 p, uint32_t channel = 0) const;
 
 	private:
+		void parse_volume_properties_from_filename(const std::string& filename);
+		void load_volume(const std::filesystem::path& filename);
+
+	private:
 		glm::uvec3 dims{};
 		uint32_t channels{};
 		uint32_t bitsPerChannel{};

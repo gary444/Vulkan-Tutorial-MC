@@ -32,7 +32,6 @@ int main(int argc, char* argv[])
 
 	std::cout << "CPU Marching Cubes extraction\n\nVolume: " << volume_path << "\nIso-value: " << iso_value << std::endl;
 
-	// load volume
 	mc_core::Volume volume{ volume_path };
 
 
