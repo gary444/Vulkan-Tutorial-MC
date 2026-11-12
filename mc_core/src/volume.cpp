@@ -9,71 +9,88 @@
 namespace mc_core
 {
 
-
-	Volume::Volume(const std::filesystem::path& loadPath) 
+	Volume::Volume(VolumeDesc desc, std::vector<uint8_t> _data)
+		: desc(desc), data( std::move(_data) )
 	{
-		parse_volume_properties_from_filename(loadPath.stem().string());
-		load_volume(loadPath);
+
+		const size_t expectedPayloadSize = byteSize(desc);
+		if (expectedPayloadSize != data.size())
+			throw std::runtime_error("Data payload given to volume doesn't match expected size based on descriptor");
 	}
 
-
-	float Volume::sample(const glm::uvec3 p, const uint32_t channel) const
+	Volume Volume::loadRaw(const std::filesystem::path& loadPath)
 	{
-		if (bitsPerChannel != 8) {
-			throw std::exception("sampling interpretation for this bit depth is not yet supported");
-		}
+		std::cout << loadPath.stem().string() << std::endl;
 
-		const uint32_t voxel = p.z * dims.x * dims.y + p.y * dims.x + p.x;
-		const uint32_t index = voxel * channels + channel;
-
-		return static_cast<float>(data[index]) / 255.f;
-	}
-
-	void Volume::parse_volume_properties_from_filename(const std::string& filename)
-	{
-		std::cout << "Parsing filename: " << filename << std::endl;
+		// parse filename
+		VolumeDesc desc;
 
 		// splits view into subranges (pair of iterators)
-		for (const auto part : std::views::split(filename, '_')) {
+		for (const auto part : std::views::split(loadPath.stem().string(), '_')) {
+
 
 			const std::string_view token(part.begin(), part.end());
-			if (token.size() < 2) continue;
+						if (token.size() < 2) continue;
+
+
 
 			uint32_t value{};
 			const auto [end, ec] = std::from_chars(token.data() + 1, token.data() + token.size(), value);
 			if (ec != std::errc{} || end != token.data() + token.size()) continue;
 
 			switch (token[0]) {
-				case 'w': dims.x = value; break;
-				case 'h': dims.y = value; break;
-				case 'd': dims.z = value; break;
-				case 'c': channels = value; break;
-				case 'b': bitsPerChannel = value; break;
+			case 'w': desc.dims.x = value; break;
+			case 'h': desc.dims.y = value; break;
+			case 'd': desc.dims.z = value; break;
+			case 'c': desc.channels = value; break;
+			case 'b': desc.bitsPerChannel = value; break;
 			}
 		}
 
-		if (dims == glm::uvec3{} && 0 == channels && 0 == bitsPerChannel) {
+		if (0 == desc.dims.x || 0 == desc.dims.y || 0 == desc.dims.z || 0 == desc.channels || 0 == desc.bitsPerChannel) {
 			throw std::runtime_error("Volume name was missing an input parameter");
 		}
+
+		auto data = loadVolumeData(loadPath, desc);
+
+
+		return Volume(desc, std::move(data) );
 	}
 
-	void Volume::load_volume(const std::filesystem::path& filename) {
-
-		const size_t payloadSize = std::size_t(dims.x) * dims.y * dims.z * channels * bitsPerChannel / 8;
-		const auto actualSize = std::filesystem::file_size(filename);
-
-		if (actualSize > payloadSize)
+	std::vector<uint8_t> loadVolumeData(const std::filesystem::path& loadPath, const VolumeDesc& desc)
+	{
+		const auto fileSize = std::filesystem::file_size(loadPath);
+		const size_t expectedPayloadSize = byteSize(desc);
+		
+		if (fileSize != expectedPayloadSize)
 			throw std::runtime_error("File size does not match specified properties");
 
-		std::ifstream file(filename, std::ios::binary);
+		std::vector<uint8_t> data;
+
+		std::ifstream file(loadPath, std::ios::binary);
 
 		if (!file.is_open())
 			throw std::runtime_error("Could not open file");
 
-		data.resize(payloadSize);
+		data.resize(expectedPayloadSize);
 
-		if (!file.read(reinterpret_cast<char*>(data.data()), static_cast<std::streamsize>(payloadSize)))
+		if (!file.read(reinterpret_cast<char*>(data.data()), static_cast<std::streamsize>(expectedPayloadSize)))
 			throw std::runtime_error("Could not read file");
+
+		return data;
+	}
+
+
+	float Volume::sample(const glm::uvec3 p, const uint32_t channel) const
+	{
+		if (desc.bitsPerChannel != 8) {
+			throw std::runtime_error("sampling interpretation for this bit depth is not yet supported");
+		}
+
+		const size_t voxel = size_t(p.z) * desc.dims.x * desc.dims.y + p.y * desc.dims.x + p.x;
+		const size_t index = size_t(voxel) * desc.channels + channel;
+
+		return static_cast<float>(data[index]) / 255.f;
 	}
 
 

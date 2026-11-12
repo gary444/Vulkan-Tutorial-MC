@@ -32,7 +32,24 @@ int main(int argc, char* argv[])
 
 	std::cout << "CPU Marching Cubes extraction\n\nVolume: " << volume_path << "\nIso-value: " << iso_value << std::endl;
 
-	mc_core::Volume volume{ volume_path };
+	mc_core::Volume volume = mc_core::Volume::loadRaw(volume_path);
+	std::cout << "Loaded volume" << std::endl;
+
+	auto desc = volume.getDesc();
+	std::cout << "Volume size: " << desc.dims.x << "x" << desc.dims.y << "x" << desc.dims.z << std::endl;
+	std::cout << "Volume channels: " << desc.channels << std::endl;
+	std::cout << "Volume bits per channel: " << desc.bitsPerChannel << std::endl;
+
+
+	// TODO
+
+	// sphere volume debug function 
+
+	// define tables / data structs in a separate file
+
+	// implement CPU extraction (separate file)
+
+	// use library to write mesh to output file?
 
 
 	return EXIT_SUCCESS;
