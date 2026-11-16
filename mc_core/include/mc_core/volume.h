@@ -11,12 +11,16 @@
 
 namespace mc_core
 {
-
+	struct VolumeExtents {
+		glm::vec3 min{};
+		glm::vec3 max{};
+	};
 
 	struct VolumeDesc {
 		glm::uvec3 dims{};
 		uint32_t channels{};
 		uint32_t bitsPerChannel{};
+		VolumeExtents extents{};
 	};
 
 	class Volume
@@ -24,9 +28,19 @@ namespace mc_core
 	public:
 		Volume(VolumeDesc desc, std::vector<uint8_t> data);
 
-		static Volume loadRaw(const std::filesystem::path& loadPath);
+		// explicit deletion of copy and copy assignment constructors
+		Volume(const Volume& other) = delete;
+		Volume& operator=(const Volume& other) = delete;
+
+		// default move constructors
+		Volume(Volume&& other) noexcept = default;
+		Volume& operator=(Volume&& other) noexcept = default;
+
+
+		static Volume loadRaw(const std::filesystem::path& loadPath, VolumeExtents extents);
 		
 		// TODO
+		// load volumes that use the open scivis repo naming convention
 		//static Volume loadSciVis(const std::filesystem::path& loadPath);
 
 		// TODO

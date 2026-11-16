@@ -16,9 +16,12 @@ namespace mc_core
 		const size_t expectedPayloadSize = byteSize(desc);
 		if (expectedPayloadSize != data.size())
 			throw std::runtime_error("Data payload given to volume doesn't match expected size based on descriptor");
+	
+		if (glm::distance(desc.extents.min, desc.extents.max) < std::numeric_limits<float>::min())
+			throw std::runtime_error("Invalid volume extents");
 	}
 
-	Volume Volume::loadRaw(const std::filesystem::path& loadPath)
+	Volume Volume::loadRaw(const std::filesystem::path& loadPath, const VolumeExtents extents)
 	{
 		std::cout << loadPath.stem().string() << std::endl;
 
@@ -53,6 +56,7 @@ namespace mc_core
 
 		auto data = loadVolumeData(loadPath, desc);
 
+		desc.extents = extents;
 
 		return Volume(desc, std::move(data) );
 	}

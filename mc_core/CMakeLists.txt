@@ -1,8 +1,12 @@
 
 set(MC_CORE_LIB_NAME "mc_core")
 
-add_library(${MC_CORE_LIB_NAME} STATIC
-	src/volume.cpp)
+file(GLOB_RECURSE LIB_SOURCES CONFIGURE_DEPENDS
+	${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/include/${MC_CORE_LIB_NAME}/*.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/${MC_CORE_LIB_NAME}/*.hpp
+)
+add_library(${MC_CORE_LIB_NAME} STATIC ${LIB_SOURCES})
 
 target_include_directories(${MC_CORE_LIB_NAME} PUBLIC include)
 target_compile_features(${MC_CORE_LIB_NAME} PUBLIC cxx_std_20)
