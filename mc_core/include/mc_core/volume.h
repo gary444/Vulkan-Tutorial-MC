@@ -46,7 +46,7 @@ namespace mc_core
 		// TODO
 		//static Volume makeSphere(glm::uvec3, float radius);
 
-		const VolumeDesc& getDesc() { return desc; }
+		const VolumeDesc& getDesc() const { return desc; }
 
 		// span returns a pointer plus a size
 		// const in the type specifier indicates a read only uint8_t view

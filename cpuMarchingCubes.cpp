@@ -6,6 +6,8 @@
 
 #include <mc_core/volume.h>
 #include <mc_core/marching_cubes.h>
+#include <mc_core/Structs.h>
+#include <mc_core/ObjWriter.h>
 
 
 int main(int argc, char* argv[])
@@ -44,14 +46,15 @@ int main(int argc, char* argv[])
 	std::cout << "Volume max. extent: [" << desc.extents.max.x << " " << desc.extents.max.y << " " << desc.extents.max.z << "]\n";
 
 	std::cout << "Marching Cubes starting...\n";
-	std::vector<float> triangles = mc_core::extractIsosurfaces(volume, iso_value);
-	std::cout << "Marching Cubes finished with " << triangles.size() / 9 << " triangles\n";
+	std::vector<mc_core::Triangle> triangles = mc_core::extractIsosurfaces(volume, iso_value);
+	std::cout << "Marching Cubes finished with " << triangles.size() << " triangles\n";
 
 
 
-	// TODO
-
-	// use library to write mesh to output file
+	std::filesystem::path writePath = volume_path.string() + ".obj";
+	std::cout << "Writing triangles to path: " << writePath << "\n";
+	mc_core::writeObj(writePath, triangles);
+	std::cout << "Finished writing triangles\n";
 
 
 	return EXIT_SUCCESS;
