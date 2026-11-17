@@ -1,4 +1,4 @@
-#include <mc_core/volume.h>
+#include <mc_core/Volume.h>
 
 #include <iostream>
 #include <fstream>

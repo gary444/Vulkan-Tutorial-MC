@@ -4,8 +4,8 @@
 
 #include <filesystem>
 
-#include <mc_core/volume.h>
-#include <mc_core/marching_cubes.h>
+#include <mc_core/Volume.h>
+#include <mc_core/MarchingCubes.h>
 #include <mc_core/Structs.h>
 #include <mc_core/ObjWriter.h>
 

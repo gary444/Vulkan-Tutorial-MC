@@ -1,5 +1,5 @@
-#include <mc_core/marching_cubes.h>
-#include <mc_core/marching_cubes_tables.h>
+#include <mc_core/MarchingCubes.h>
+#include <mc_core/MarchingCubesTables.h>
 
 
 namespace mc_core
