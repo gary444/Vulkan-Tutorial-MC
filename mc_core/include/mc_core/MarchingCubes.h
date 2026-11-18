@@ -2,6 +2,8 @@
 
 #include <vector>
 
+#include <glm/glm.hpp>
+
 #include <mc_core/Structs.h>
 #include <mc_core/Volume.h>
 
@@ -10,8 +12,17 @@
 namespace mc_core 
 {
 
-
-
+	constexpr int numVertexOffsets = 8;
+	constexpr glm::uvec3 vertexOffsets [numVertexOffsets] = {
+		glm::uvec3(0,0,0),
+		glm::uvec3(0,0,1),
+		glm::uvec3(0,1,1),
+		glm::uvec3(0,1,0),
+		glm::uvec3(1,0,0),
+		glm::uvec3(1,0,1),
+		glm::uvec3(1,1,1),
+		glm::uvec3(1,1,0)
+	};
 
 	// define tables / data structs in a separate file
 

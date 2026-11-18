@@ -28,11 +28,11 @@ namespace mc_core
 	public:
 		Volume(VolumeDesc desc, std::vector<uint8_t> data);
 
-		// explicit deletion of copy and copy assignment constructors
+		// explicit deletion of copy constructor and copy assignment operator
 		Volume(const Volume& other) = delete;
 		Volume& operator=(const Volume& other) = delete;
 
-		// default move constructors
+		// default move constructor / move assignment 
 		Volume(Volume&& other) noexcept = default;
 		Volume& operator=(Volume&& other) noexcept = default;
 
