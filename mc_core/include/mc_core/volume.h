@@ -54,6 +54,10 @@ namespace mc_core
 
 		float sample(glm::uvec3 p, uint32_t channel = 0) const;
 
+		glm::vec3 getVoxelCentre(glm::uvec3 p) const;
+
+		
+
 	private:
 		VolumeDesc desc;
 		std::vector<uint8_t> data;

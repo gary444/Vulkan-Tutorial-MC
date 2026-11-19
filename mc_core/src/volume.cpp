@@ -97,5 +97,11 @@ namespace mc_core
 		return static_cast<float>(data[index]) / 255.f;
 	}
 
+	glm::vec3 Volume::getVoxelCentre(glm::uvec3 p) const
+	{
+		glm::vec3 normalisedVoxelCentre = (glm::vec3(p) + glm::vec3(0.5f)) / glm::vec3(desc.dims);
+		return normalisedVoxelCentre * (desc.extents.max - desc.extents.min) + desc.extents.min;
+	}
+
 
 }
