@@ -1,12 +1,21 @@
+
+#include <glm/glm.hpp>
+
 #include <mc_core/MarchingCubes.h>
 #include <mc_core/MarchingCubesTables.h>
 
 
+
 namespace mc_core
 {
-	constexpr uint32_t maxNumTrianglesInCell = 5;
 
-	std::vector<Triangle> extractIsosurfaces(const Volume& volume, float isoValue)
+	glm::vec3 interpolateVertexPosition(const glm::vec3 vertex0, const glm::vec3 vertex1, const float value0, const float value1, const float isoValue) {
+
+		const float normalizedIntersectionDistance = std::clamp(abs(value0 - isoValue) / abs(value0 - value1), 0.f, 1.f);
+		return vertex0 + (vertex1 - vertex0) * normalizedIntersectionDistance;
+	}
+
+	std::vector<Triangle> extractIsosurfaceAsTriangleSoup(const Volume& volume, float isoValue)
 	{
 		const auto& desc = volume.getDesc();
 
@@ -19,80 +28,64 @@ namespace mc_core
 
 					const glm::uvec3 cellIndex{ x,y,z };
 
-					uint8_t vertexCode = 0;
-					std::vector<float> sampledValues(8);
-
-					for (size_t vertex = 0; vertex < numVertexOffsets; vertex++)
+					std::vector<float> sampledValues(numCellVertices);
+					for (size_t vertex = 0; vertex < numCellVertices; vertex++)
 					{
 						sampledValues[vertex] = volume.sample(cellIndex + vertexOffsets[vertex]);
+					}
+
+					uint8_t vertexValueBelowIsosurfaceFlags = 0;
+					for (size_t vertex = 0; vertex < numCellVertices; vertex++)
+					{
 						if (sampledValues[vertex] < isoValue)
 						{
-							vertexCode |= (1 << vertex);
+							vertexValueBelowIsosurfaceFlags |= (1 << vertex);
 						}
 					}
 
-					if (0 == vertexCode || 255 == vertexCode) {
+					if (0 == vertexValueBelowIsosurfaceFlags || 255 == vertexValueBelowIsosurfaceFlags) {
 						continue;
 					}
 
-					// TODO create correct triangles according to vertex code
-
-					// get edgeTable variable which encodes which of the 12 edges are intersected
-					const uint8_t edgeIntersection = edgeTable[vertexCode];
-
 					// get the real vertex positions at each cell vertex
-					std::vector<glm::vec3> realVertexPositions(8);
-					for (size_t vertex = 0; vertex < numVertexOffsets; vertex++)
+					std::vector<glm::vec3> realVertexPositions(numCellVertices);
+					for (size_t vertex = 0; vertex < numCellVertices; vertex++)
 					{
 						realVertexPositions[vertex] = volume.getVoxelCentre(cellIndex + vertexOffsets[vertex]);
 					}
 
+					// get edgeTable variable that encodes which of the 12 edges are intersected
+					const uint32_t edgeIntersectionFlags = edgeTable[vertexValueBelowIsosurfaceFlags];
 
 					// calculate the vertex positions of the intersected edges
-					std::vector<glm::vec3> interpolatedVertices(12);
-					for (size_t edge = 0; edge < interpolatedVertices.size(); edge++)
+					std::vector<glm::vec3> interpolatedVertices(numCellEdges);
+					for (uint32_t edge = 0; edge < numCellEdges; edge++)
 					{
-						if (edgeIntersection & (1 << edge)) {
+						if (edgeIntersectionFlags & (1u << edge)) {
 
 							const uint8_t cellVertices[2] = { edgeToVerticesMapping[edge][0], edgeToVerticesMapping[edge][1] };
-							glm::vec3 realVertexPositions[2]; 
-							// TODO
-							// calculate vertex position from
-							// sampled values at vertices
-							// iso-value
-							// actual position of vertices (
+							const glm::vec3 vertex0 = realVertexPositions[cellVertices[0]];
+							const glm::vec3 vertex1 = realVertexPositions[cellVertices[1]];
+							const float value0 = sampledValues[cellVertices[0]];
+							const float value1 = sampledValues[cellVertices[1]];
+
+							interpolatedVertices[edge] = interpolateVertexPosition(vertex0, vertex1, value0, value1, isoValue);
 						}
 					}
 
 
 					// build the triangles (up to 5) using the triTable
-
-					for (size_t triangle = 0; triangle < 5; triangle++)
+					const uint8_t numTriangles = numVertsTable[vertexValueBelowIsosurfaceFlags] / 3;
+					for (size_t triangle = 0; triangle < numTriangles; triangle++)
 					{
 						uint8_t indices[3];
 						for (size_t vertex = 0; vertex < 3; vertex++)
 						{
-							indices[vertex] = triTable[vertexCode][triangle * 3 + vertex];
+							indices[vertex] = triTable[vertexValueBelowIsosurfaceFlags][triangle * 3 + vertex];
 						}
-
-						if (indices[0] >= 255)
-							break;
 
 						triangles.push_back({ interpolatedVertices[indices[0]], interpolatedVertices[indices[1]], interpolatedVertices[indices[2]] });
 					}
-
-
-
-					// TODO alternative method that produces index and vertex buffer
-
-
-
-
-
-
-
-					triangles.push_back({ glm::vec3(0,1,0), glm::vec3(0,0,0), glm::vec3(1,0,1) });
-
 				}
 			}
 		}

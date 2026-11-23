@@ -46,12 +46,11 @@ int main(int argc, char* argv[])
 	std::cout << "Volume max. extent: [" << desc.extents.max.x << " " << desc.extents.max.y << " " << desc.extents.max.z << "]\n";
 
 	std::cout << "Marching Cubes starting...\n";
-	std::vector<mc_core::Triangle> triangles = mc_core::extractIsosurfaces(volume, iso_value);
+	std::vector<mc_core::Triangle> triangles = mc_core::extractIsosurfaceAsTriangleSoup(volume, iso_value);
 	std::cout << "Marching Cubes finished with " << triangles.size() << " triangles\n";
 
 
-
-	std::filesystem::path writePath = volume_path.string() + ".obj";
+	std::filesystem::path writePath = volume_path.string() + "iso" + std::to_string(iso_value) + ".obj";
 	std::cout << "Writing triangles to path: " << writePath << "\n";
 	mc_core::writeObj(writePath, triangles);
 	std::cout << "Finished writing triangles\n";

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-
+#include <glm/glm.hpp>
 
 namespace mc_core
 {
@@ -24,6 +24,22 @@ namespace mc_core
         { 3, 7 }
     };
 
+    constexpr uint32_t maxNumTrianglesInCell = 5;
+    constexpr uint32_t numCellEdges = 12;
+    constexpr uint32_t numCellVertices = 8;
+
+    // mirrors the offsets used by NVIDIA marching cubes sample
+    // https://github.com/tpn/cuda-samples/blob/master/v8.0/2_Graphics/marchingCubes/marchingCubes_kernel.cu
+    constexpr glm::uvec3 vertexOffsets[numCellVertices] = {
+        glm::uvec3(0,0,0),
+        glm::uvec3(1,0,0),
+        glm::uvec3(1,1,0),
+        glm::uvec3(0,1,0),
+        glm::uvec3(0,0,1),
+        glm::uvec3(1,0,1),
+        glm::uvec3(1,1,1),
+        glm::uvec3(0,1,1),
+    };
 
 
 
