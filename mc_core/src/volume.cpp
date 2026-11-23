@@ -19,6 +19,10 @@ namespace mc_core
 	
 		if (glm::distance(desc.extents.min, desc.extents.max) < std::numeric_limits<float>::min())
 			throw std::runtime_error("Invalid volume extents");
+
+		if (desc.bitsPerChannel != 8) {
+			throw std::runtime_error("sampling for this bit depth is not yet supported");
+		}
 	}
 
 	Volume Volume::loadRaw(const std::filesystem::path& loadPath, const VolumeExtents extents)
@@ -87,10 +91,6 @@ namespace mc_core
 
 	float Volume::sample(const glm::uvec3 p, const uint32_t channel) const
 	{
-		if (desc.bitsPerChannel != 8) {
-			throw std::runtime_error("sampling interpretation for this bit depth is not yet supported");
-		}
-
 		const size_t voxel = size_t(p.z) * desc.dims.x * desc.dims.y + p.y * desc.dims.x + p.x;
 		const size_t index = size_t(voxel) * desc.channels + channel;
 

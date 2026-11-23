@@ -1,3 +1,4 @@
+#include <array>
 
 #include <glm/glm.hpp>
 
@@ -9,9 +10,11 @@
 namespace mc_core
 {
 
-	glm::vec3 interpolateVertexPosition(const glm::vec3 vertex0, const glm::vec3 vertex1, const float value0, const float value1, const float isoValue) {
+	glm::vec3 interpolateVertexPosition(glm::vec3 vertex0, glm::vec3 vertex1, float value0, float value1, const float isoValue) {
 
-		const float normalizedIntersectionDistance = std::clamp(abs(value0 - isoValue) / abs(value0 - value1), 0.f, 1.f);
+		// make sure direction of interpolation is always the same to avoid floating point errors
+		if (vertex1.x < vertex0.x || vertex1.y < vertex0.y || vertex1.z < vertex0.z) { std::swap(vertex0, vertex1); std::swap(value0, value1); }
+		const float normalizedIntersectionDistance = (value0 - isoValue) / (value0 - value1);
 		return vertex0 + (vertex1 - vertex0) * normalizedIntersectionDistance;
 	}
 
@@ -20,7 +23,7 @@ namespace mc_core
 		const auto& desc = volume.getDesc();
 
 		std::vector<Triangle> triangles;
-		triangles.reserve(maxNumTrianglesInCell * desc.dims.x * desc.dims.y * desc.dims.z);
+		triangles.reserve(2 * desc.dims.x * desc.dims.y); // low estimate of required space
 
 		for (size_t z = 0; z < desc.dims.z - 1; z++){
 			for (size_t y = 0; y < desc.dims.y - 1; y++){
@@ -28,7 +31,7 @@ namespace mc_core
 
 					const glm::uvec3 cellIndex{ x,y,z };
 
-					std::vector<float> sampledValues(numCellVertices);
+					std::array<float, numCellVertices> sampledValues{};
 					for (size_t vertex = 0; vertex < numCellVertices; vertex++)
 					{
 						sampledValues[vertex] = volume.sample(cellIndex + vertexOffsets[vertex]);
@@ -48,9 +51,10 @@ namespace mc_core
 					}
 
 					// get the real vertex positions at each cell vertex
-					std::vector<glm::vec3> realVertexPositions(numCellVertices);
+					std::array<glm::vec3, numCellVertices> realVertexPositions{};
 					for (size_t vertex = 0; vertex < numCellVertices; vertex++)
 					{
+						// TODO avoid division in getVoxelCentre()
 						realVertexPositions[vertex] = volume.getVoxelCentre(cellIndex + vertexOffsets[vertex]);
 					}
 
@@ -58,7 +62,7 @@ namespace mc_core
 					const uint32_t edgeIntersectionFlags = edgeTable[vertexValueBelowIsosurfaceFlags];
 
 					// calculate the vertex positions of the intersected edges
-					std::vector<glm::vec3> interpolatedVertices(numCellEdges);
+					std::array<glm::vec3, numCellEdges> interpolatedVertices{};
 					for (uint32_t edge = 0; edge < numCellEdges; edge++)
 					{
 						if (edgeIntersectionFlags & (1u << edge)) {

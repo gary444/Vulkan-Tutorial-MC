@@ -8,7 +8,7 @@ namespace mc_core
 
     // derived from the vertices used to create edges in the generateTriangles() function here:
     // https://github.com/tpn/cuda-samples/blob/master/v8.0/2_Graphics/marchingCubes/marchingCubes_kernel.cu
-    uint8_t edgeToVerticesMapping[12][2] =
+    inline constexpr uint8_t edgeToVerticesMapping[12][2] =
     {
         { 0, 1 },
         { 1, 2 },
@@ -63,7 +63,7 @@ namespace mc_core
 
      // edge table maps 8-bit flag representing which cube vertices are inside
      // the isosurface to 12-bit number indicating which edges are intersected
-    uint16_t edgeTable[256] =
+    inline constexpr uint16_t edgeTable[256] =
     {
         0x0  , 0x109, 0x203, 0x30a, 0x406, 0x50f, 0x605, 0x70c,
         0x80c, 0x905, 0xa0f, 0xb06, 0xc0a, 0xd03, 0xe09, 0xf00,
@@ -102,7 +102,7 @@ namespace mc_core
     // triangle table maps same cube vertex index to a list of up to 5 triangles
     // which are built from the interpolated edge vertices
 #define X 255
-    uint8_t triTable[256][16] =
+    inline constexpr uint8_t triTable[256][16] =
     {
         { X, X, X, X, X, X, X, X, X, X, X, X, X, X, X, X },
         { 0, 8, 3, X, X, X, X, X, X, X, X, X, X, X, X, X },
@@ -364,7 +364,7 @@ namespace mc_core
 #undef X
 
     // number of vertices for each case above
-    uint8_t numVertsTable[256] =
+    inline constexpr uint8_t numVertsTable[256] =
     {
         0,
         3,
