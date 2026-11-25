@@ -16,16 +16,15 @@ namespace mc_core
 		const size_t expectedPayloadSize = byteSize(desc);
 		if (expectedPayloadSize != data.size())
 			throw std::runtime_error("Data payload given to volume doesn't match expected size based on descriptor");
-	
-		if (glm::distance(desc.extents.min, desc.extents.max) < std::numeric_limits<float>::min())
-			throw std::runtime_error("Invalid volume extents");
 
 		if (desc.bitsPerChannel != 8) {
 			throw std::runtime_error("sampling for this bit depth is not yet supported");
 		}
+
+		voxelSize = 1.f / glm::vec3(desc.dims);
 	}
 
-	Volume Volume::loadRaw(const std::filesystem::path& loadPath, const VolumeExtents extents)
+	Volume Volume::loadRaw(const std::filesystem::path& loadPath)
 	{
 		std::cout << loadPath.stem().string() << std::endl;
 
@@ -60,7 +59,6 @@ namespace mc_core
 
 		auto data = loadVolumeData(loadPath, desc);
 
-		desc.extents = extents;
 
 		return Volume(desc, std::move(data) );
 	}
@@ -99,8 +97,7 @@ namespace mc_core
 
 	glm::vec3 Volume::getVoxelCentre(glm::uvec3 p) const
 	{
-		glm::vec3 normalisedVoxelCentre = (glm::vec3(p) + glm::vec3(0.5f)) / glm::vec3(desc.dims);
-		return normalisedVoxelCentre * (desc.extents.max - desc.extents.min) + desc.extents.min;
+		return voxelSize * (glm::vec3(p) + 0.f);
 	}
 
 

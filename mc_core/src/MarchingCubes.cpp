@@ -54,7 +54,6 @@ namespace mc_core
 					std::array<glm::vec3, numCellVertices> realVertexPositions{};
 					for (size_t vertex = 0; vertex < numCellVertices; vertex++)
 					{
-						// TODO avoid division in getVoxelCentre()
 						realVertexPositions[vertex] = volume.getVoxelCentre(cellIndex + vertexOffsets[vertex]);
 					}
 

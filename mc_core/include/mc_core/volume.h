@@ -11,16 +11,11 @@
 
 namespace mc_core
 {
-	struct VolumeExtents {
-		glm::vec3 min{};
-		glm::vec3 max{};
-	};
 
 	struct VolumeDesc {
 		glm::uvec3 dims{};
 		uint32_t channels{};
 		uint32_t bitsPerChannel{};
-		VolumeExtents extents{};
 	};
 
 	class Volume
@@ -37,7 +32,7 @@ namespace mc_core
 		Volume& operator=(Volume&& other) noexcept = default;
 
 
-		static Volume loadRaw(const std::filesystem::path& loadPath, VolumeExtents extents);
+		static Volume loadRaw(const std::filesystem::path& loadPath);
 		
 		// TODO
 		// load volumes that use the open scivis repo naming convention
@@ -61,6 +56,8 @@ namespace mc_core
 	private:
 		VolumeDesc desc;
 		std::vector<uint8_t> data;
+
+		glm::vec3 voxelSize;
 	};
 
 	std::vector<uint8_t> loadVolumeData(const std::filesystem::path& loadPath, const VolumeDesc& desc);

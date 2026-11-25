@@ -35,15 +35,13 @@ int main(int argc, char* argv[])
 
 	std::cout << "CPU Marching Cubes extraction\n\nVolume: " << volume_path << "\nIso-value: " << iso_value << std::endl;
 
-	mc_core::Volume volume = mc_core::Volume::loadRaw(volume_path, { glm::vec3(0.f), glm::vec3(1.f)});
+	mc_core::Volume volume = mc_core::Volume::loadRaw(volume_path);
 	std::cout << "Loaded volume" << std::endl;
 
 	auto desc = volume.getDesc();
 	std::cout << "Volume size: " << desc.dims.x << "x" << desc.dims.y << "x" << desc.dims.z << std::endl;
 	std::cout << "Volume channels: " << desc.channels << std::endl;
 	std::cout << "Volume bits per channel: " << desc.bitsPerChannel << std::endl;
-	std::cout << "Volume min. extent: [" << desc.extents.min.x << " " << desc.extents.min.y << " " << desc.extents.min.z << "]\n";
-	std::cout << "Volume max. extent: [" << desc.extents.max.x << " " << desc.extents.max.y << " " << desc.extents.max.z << "]\n";
 
 	std::cout << "Marching Cubes starting...\n";
 	std::vector<mc_core::Triangle> triangles = mc_core::extractIsosurfaceAsTriangleSoup(volume, iso_value);
