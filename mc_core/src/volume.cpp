@@ -97,7 +97,7 @@ namespace mc_core
 
 	glm::vec3 Volume::getVoxelCentre(glm::uvec3 p) const
 	{
-		return voxelSize * (glm::vec3(p) + 0.f);
+		return voxelSize * (glm::vec3(p) + 0.5f);
 	}
 
 
