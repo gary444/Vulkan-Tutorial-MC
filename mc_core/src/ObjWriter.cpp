@@ -22,7 +22,7 @@ namespace mc_core
 
 		outfile << "# Written with file mc_core/ObjWriter.cpp\n";
 
-		for (auto t : triangles) {
+		for (const auto& t : triangles) {
 
 			for (size_t vertex = 0; vertex < 3; vertex++)
 			{
@@ -34,6 +34,9 @@ namespace mc_core
 		{
 			outfile << "f " << triangleId * 3 + 1 << " " << triangleId * 3 + 2 << " " << triangleId * 3 + 3 << "\n";
 		}
+
+		outfile.close();
+
 	}
 
 }

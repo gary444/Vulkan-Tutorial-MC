@@ -16,6 +16,11 @@ namespace mc_core
 		glm::uvec3 dims{};
 		uint32_t channels{};
 		uint32_t bitsPerChannel{};
+
+		std::size_t byteSize() const
+		{
+			return std::size_t(dims.x) * dims.y * dims.z * channels * bitsPerChannel / 8;
+		}
 	};
 
 	class Volume
@@ -47,7 +52,7 @@ namespace mc_core
 		// const in the type specifier indicates a read only uint8_t view
 		std::span<const uint8_t> getData() const { return data; }
 
-		float sample(glm::uvec3 p, uint32_t channel = 0) const;
+		uint8_t sample(glm::uvec3 p, uint32_t channel = 0) const;
 
 		glm::vec3 getVoxelCentre(glm::uvec3 p) const;
 
@@ -60,12 +65,8 @@ namespace mc_core
 		glm::vec3 voxelSize;
 	};
 
-	std::vector<uint8_t> loadVolumeData(const std::filesystem::path& loadPath, const VolumeDesc& desc);
 
-	inline std::size_t byteSize(const VolumeDesc& d)
-	{
-		return std::size_t(d.dims.x) * d.dims.y * d.dims.z * d.channels * d.bitsPerChannel / 8;
-	}
+
 
 	
 }

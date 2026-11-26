@@ -9,14 +9,18 @@
 
 namespace mc_core
 {
+	namespace 
+	{
+		glm::vec3 interpolateVertexPosition(glm::vec3 vertex0, glm::vec3 vertex1, float value0, float value1, const float isoValue) {
 
-	glm::vec3 interpolateVertexPosition(glm::vec3 vertex0, glm::vec3 vertex1, float value0, float value1, const float isoValue) {
+			// make sure direction of interpolation is always the same to avoid floating point errors
+			if (vertex1.x < vertex0.x || vertex1.y < vertex0.y || vertex1.z < vertex0.z) { std::swap(vertex0, vertex1); std::swap(value0, value1); }
+			const float normalizedIntersectionDistance = (value0 - isoValue) / (value0 - value1);
+			return vertex0 + (vertex1 - vertex0) * normalizedIntersectionDistance;
+		}
 
-		// make sure direction of interpolation is always the same to avoid floating point errors
-		if (vertex1.x < vertex0.x || vertex1.y < vertex0.y || vertex1.z < vertex0.z) { std::swap(vertex0, vertex1); std::swap(value0, value1); }
-		const float normalizedIntersectionDistance = (value0 - isoValue) / (value0 - value1);
-		return vertex0 + (vertex1 - vertex0) * normalizedIntersectionDistance;
 	}
+
 
 	std::vector<Triangle> extractIsosurfaceAsTriangleSoup(const Volume& volume, float isoValue)
 	{
@@ -34,7 +38,7 @@ namespace mc_core
 					std::array<float, numCellVertices> sampledValues{};
 					for (size_t vertex = 0; vertex < numCellVertices; vertex++)
 					{
-						sampledValues[vertex] = volume.sample(cellIndex + vertexOffsets[vertex]);
+						sampledValues[vertex] = volume.sample(cellIndex + vertexOffsets[vertex]) / 255.f;
 					}
 
 					uint8_t vertexValueBelowIsosurfaceFlags = 0;
